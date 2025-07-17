@@ -1,0 +1,186 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table users {
+  id Int [pk, increment]
+  createdAt DateTime [default: `now()`, not null]
+  updateAt DateTime [not null]
+  email String [unique, not null]
+  hash String [not null]
+  hashedRt String
+  admin Boolean [not null, default: false]
+  firstname String
+  lastname String
+  carts Cart [not null]
+  orders Order [not null]
+  resetTokens ResetToken [not null]
+  coupons CouponUsage [not null]
+}
+
+Table Product {
+  id Int [pk, increment]
+  name String [unique, not null]
+  description String [not null]
+  price Float [not null]
+  discountPrice Float
+  stock Boolean [not null]
+  category ProductCategory [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  carts Cart [not null]
+  orderItems OrderItem [not null]
+  images Image [not null]
+}
+
+Table Cart {
+  id Int [pk, increment]
+  userId Int [not null]
+  user users [not null]
+  productId Int [not null]
+  product Product [not null]
+  addedAt DateTime [default: `now()`, not null]
+
+  indexes {
+    (userId, productId) [unique]
+  }
+}
+
+Table Subscriber {
+  id Int [pk, increment]
+  email String [unique, not null]
+  createdAt DateTime [default: `now()`, not null]
+  isActive Boolean [not null, default: true]
+}
+
+Table Order {
+  id Int [pk, increment]
+  userEmail String
+  user users
+  status OrderStatus [not null, default: 'PENDING']
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  totalAmount Float [not null]
+  items OrderItem [not null]
+  isBusiness Boolean [not null, default: false]
+  paymentMethod String [not null, default: 'cash']
+  couponId Int
+  coupon Coupon
+  shippingAddress ShippingAddress
+  billingAddress BillingAddress
+}
+
+Table OrderItem {
+  id Int [pk, increment]
+  orderId Int [not null]
+  order Order [not null]
+  productId Int [not null]
+  product Product [not null]
+  price Float [not null]
+}
+
+Table ShippingAddress {
+  id Int [pk, increment]
+  orderId Int [unique, not null]
+  order Order [not null]
+  firstName String [not null]
+  lastName String [not null]
+  phone String [not null]
+  email String [not null]
+  zipCode String [not null]
+  city String [not null]
+  street String [not null]
+  streetType String [not null]
+  houseNumber String [not null]
+  extra String
+}
+
+Table BillingAddress {
+  id Int [pk, increment]
+  orderId Int [unique, not null]
+  order Order [not null]
+  firstName String [not null]
+  lastName String [not null]
+  phone String [not null]
+  zipCode String [not null]
+  city String [not null]
+  street String [not null]
+  streetType String [not null]
+  houseNumber String [not null]
+  extra String
+  companyName String
+  taxNumber String
+}
+
+Table Image {
+  id Int [pk, increment]
+  url String [not null]
+  productId Int [not null]
+  product Product [not null]
+}
+
+Table ResetToken {
+  id String [pk]
+  token String [not null]
+  userId Int [not null]
+  expiryDate DateTime [not null]
+  user users [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table Coupon {
+  id Int [pk, increment]
+  code String [unique, not null]
+  discount Int [not null]
+  type String [not null]
+  expiration DateTime
+  createdAt DateTime [default: `now()`, not null]
+  usedByUsers CouponUsage [not null]
+  orders Order [not null]
+}
+
+Table CouponUsage {
+  id Int [pk, increment]
+  userId Int [not null]
+  couponId Int [not null]
+  usedAt DateTime [default: `now()`, not null]
+  user users [not null]
+  coupon Coupon [not null]
+}
+
+Enum ProductCategory {
+  UNIQUE_FLOWER_ARRANGEMENTS
+  DRY_PLANT_MOSS_ART
+  UNIQUE_WIRE_JEWELRY
+}
+
+Enum OrderStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+Ref: Cart.userId > users.id
+
+Ref: Cart.productId > Product.id
+
+Ref: Order.userEmail > users.email
+
+Ref: Order.couponId > Coupon.id
+
+Ref: OrderItem.orderId > Order.id
+
+Ref: OrderItem.productId > Product.id
+
+Ref: ShippingAddress.orderId - Order.id
+
+Ref: BillingAddress.orderId - Order.id
+
+Ref: Image.productId > Product.id
+
+Ref: ResetToken.userId > users.id
+
+Ref: CouponUsage.userId > users.id [delete: Cascade]
+
+Ref: CouponUsage.couponId > Coupon.id [delete: Cascade]

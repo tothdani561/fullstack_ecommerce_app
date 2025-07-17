@@ -1,0 +1,15 @@
+{
+  "name": "Drotvarazs Ekszer es Virag Webshop",
+  "packageManager": "npm@8.1.0",
+  "devDependencies": {
+    "turbo": "^2.0.6"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "start": "node apps/api/dist/main"
+  },
+  "workspaces":[
+    "apps/*"
+  ]
+}

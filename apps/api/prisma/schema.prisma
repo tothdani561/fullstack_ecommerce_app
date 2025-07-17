@@ -1,0 +1,191 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator dbml {
+  provider = "prisma-dbml-generator"
+  output   = "./prisma/schema.dbml"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updateAt DateTime @updatedAt
+
+  email String @unique
+  hash String
+  hashedRt String?
+  admin Boolean @default(false)
+  firstname String?
+  lastname String?
+  carts Cart[]
+  orders Order[]
+  resetTokens ResetToken[]
+  coupons  CouponUsage[]
+
+  @@map("users")
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String
+  price       Float
+  discountPrice Float?
+  stock       Boolean
+  category    ProductCategory
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  carts       Cart[]
+  orderItems  OrderItem[]
+  images      Image[]
+}
+
+// Enum a kategóriákhoz
+enum ProductCategory {
+  UNIQUE_FLOWER_ARRANGEMENTS
+  DRY_PLANT_MOSS_ART
+  UNIQUE_WIRE_JEWELRY
+}
+
+model Cart {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  addedAt   DateTime @default(now())
+
+  @@unique([userId, productId])
+}
+
+model Subscriber {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  createdAt DateTime @default(now())
+  isActive  Boolean  @default(true)
+}
+
+model Order {
+  id            Int           @id @default(autoincrement())
+  userEmail     String?
+  user          User?         @relation(fields: [userEmail], references: [email])
+  status        OrderStatus   @default(PENDING)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  totalAmount   Float
+  items         OrderItem[]
+
+  isBusiness    Boolean       @default(false)
+  paymentMethod String        @default("cash")
+
+  couponId     Int?
+  coupon       Coupon? @relation(fields: [couponId], references: [id])
+
+  shippingAddress ShippingAddress?
+  billingAddress  BillingAddress?
+}
+
+model OrderItem {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  order     Order    @relation(fields: [orderId], references: [id])
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  price     Float
+}
+
+model ShippingAddress {
+  id          Int    @id @default(autoincrement())
+  orderId     Int    @unique
+  order       Order  @relation(fields: [orderId], references: [id])
+
+  firstName   String
+  lastName    String
+  phone       String
+  email       String
+  zipCode     String
+  city        String
+  street      String
+  streetType  String
+  houseNumber String
+  extra       String?
+}
+
+model BillingAddress {
+  id          Int    @id @default(autoincrement())
+  orderId     Int    @unique
+  order       Order  @relation(fields: [orderId], references: [id])
+
+  firstName   String
+  lastName    String
+  phone       String
+  zipCode     String
+  city        String
+  street      String
+  streetType  String
+  houseNumber String
+  extra       String?
+  
+  companyName String?
+  taxNumber   String?
+}
+
+enum OrderStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+model Image {
+  id         Int      @id @default(autoincrement())
+  url        String
+  productId  Int
+  product    Product  @relation(fields: [productId], references: [id])
+}
+
+model ResetToken {
+  id         String   @id @default(cuid())
+  token      String
+  userId     Int      @map("userId")
+  expiryDate DateTime
+
+  user       User     @relation(fields: [userId], references: [id])
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Coupon {
+  id            Int    @id @default(autoincrement())
+  code          String @unique
+  discount      Int
+  type          String // "GENERAL" vagy "SINGLE_USE"
+  expiration    DateTime?
+  createdAt     DateTime @default(now())
+
+  // GENERAL kuponokhoz (több user használhatja)
+  usedByUsers   CouponUsage[] // Kapcsolótábla, hogy kik használták már
+  orders       Order[]
+}
+
+model CouponUsage {
+  id        Int    @id @default(autoincrement())
+  userId    Int
+  couponId  Int
+  usedAt    DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coupon Coupon @relation(fields: [couponId], references: [id], onDelete: Cascade)
+}
