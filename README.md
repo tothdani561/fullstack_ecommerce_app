@@ -1,6 +1,6 @@
 # Full Stack Web Application
 
-A modern, full stack web application built with a focus on performance, scalability, and developer experience.
+A modern, full stack web application built **entirely in TypeScript**, with a focus on performance, scalability, and developer experience.
 
 ## 🛠 Tech Stack
 
