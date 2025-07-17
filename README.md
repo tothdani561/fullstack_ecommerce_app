@@ -12,7 +12,7 @@ A modern, full stack web application built **entirely in TypeScript**, with a fo
 ### Backend
 - **NestJS** – Scalable Node.js framework for building efficient server-side applications
 - **Prisma ORM** – Type-safe database access with auto-generated queries and migrations
-- **MySQL** – Relational database engine
+- **MySQL** – Relational database
 
 ### DevOps / Tooling
 - **Docker** – Containerized environment for consistent development and deployment
