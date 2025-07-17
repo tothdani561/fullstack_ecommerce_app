@@ -23,5 +23,7 @@ A modern, full stack web application built **entirely in TypeScript**, with a fo
 - 🔐 Authentication & authorization with JWT technology
 - 📄 RESTful API structure
 - ⚡ Optimized client-server communication using TanStack Query
+- 💳 Integrated Barion payment gateway for secure online transactions
+- 🛠️ An admin panel for managing products, coupons, and newsletters
 - 🗃️ Fully type-safe database access via Prisma
 - 💻 Responsive and modern UI with Tailwind CSS
